@@ -1,6 +1,8 @@
 package com.my_hash_map;
 
 
+import java.util.Set;
+
 public class MainTest {
     public static void main(String[] args) {
 
@@ -21,6 +23,9 @@ public class MainTest {
         myHashMap.put("O", 2);
         myHashMap.put("P", 2);
         myHashMap.put("A", 3);
+        myHashMap.put(null, 10);
+
+        Set<MyHashMap.Entry<String, Integer>> set = myHashMap.entrySet();
 
 
 
@@ -30,5 +35,7 @@ public class MainTest {
         System.out.println(myHashMap.keySet());
         System.out.println(myHashMap.entrySet());
         System.out.println(myHashMap.values());
+        System.out.println(myHashMap.get(null));
+        System.out.println(set);
     }
 }

@@ -13,33 +13,41 @@ import java.util.stream.Collectors;
 public class MyHashMap<K, V> implements MyMapInterface<K, V> {
 
 
-    private int defaultLength = 16;
     /**
      * Начальный размер массива корзин хэш-таблицы.
      */
+    private int defaultLength = 16;
 
-    private final int MAXIMUM_SIZE = 1000;
+
     /**
      * Максимально допустимый размер хэш-таблицы. При превышении этого значения будет выброшено исключение.
      */
-    private final float DEFAULT_LOAD_FACTOR = 0.75f;
+    private final int MAXIMUM_SIZE = 1000;
+
     /**
      * Коэффициент загрузки, определяющий момент, когда следует увеличивать размер таблицы.
      */
-    private final int threshold;
+    private final float DEFAULT_LOAD_FACTOR = 0.75f;
+
     /**
      * Порог, при достижении которого размер корзины будет увеличен.
      */
-    private final LinkedList<Entry<K, V>>[] bucket;
+    private final int threshold;
+
     /**
-     * Массив корзин, в которых будут храниться связанные списки на основе коллизий.
+     * Массив корзин, в которых будут храниться связанные списки.
      */
-    private int size;
+    private final LinkedList<Entry<K, V>>[] bucket;
 
     /**
      * Текущий размер хэш-таблицы, то есть количество элементов.
      */
+    private int size;
 
+
+    /**
+     * Вложенный класс для представления пары ключ-значение.
+     */
     @ToString
     protected static class Entry<K, V> {
         public K key;
@@ -61,59 +69,44 @@ public class MyHashMap<K, V> implements MyMapInterface<K, V> {
          */
     }
 
-    /**
-     * Вложенный класс для представления пары ключ-значение.
-     */
 
+    /**
+     * Инициализирует хэш-таблицу с заданной длиной и устанавливает начальные значения для size и threshold.
+     */
     public MyHashMap() {
         this.bucket = new LinkedList[defaultLength];
         this.size = 0;
         this.threshold = (int) (defaultLength * DEFAULT_LOAD_FACTOR);
     }
 
-    /**
-     * Инициализирует хэш-таблицу с заданной длиной и устанавливает начальные значения для size и threshold.
-     */
-
-    private int hash(K key) {
-        return Objects.hashCode(key) % bucket.length;
-    }
 
     /**
      * Генерирует индекс для заданного ключа, используя метод Objects.hashCode() для получения хэш-кода
      * и применяя модульную арифметику с длиной массива корзин.
      */
+    private int hash(K key) {
+        return Objects.hashCode(key) % bucket.length;
+    }
 
+
+    /**
+     * Возвращает значение, связанное с заданным ключом. Если ключ не найден, возвращает null.
+     */
     @Override
     public V get(K key) {
         int index = hash(key);
-        if (bucket[index] != null) {
+        if (key == null) {
+            return bucket[index].getLast().value;
+        } else if (bucket[index] != null) {
             for (Entry<K, V> entry : bucket[index]) {
                 if (entry.key.equals(key)) {
                     return bucket[index].getLast().value;
                 }
             }
+        } else {
+            return null;
         }
         return null;
-    }
-
-    /**
-     * Возвращает значение, связанное с заданным ключом. Если ключ не найден, возвращает null.
-     */
-
-    @Override
-    public boolean put(K key, V value) {
-        checkSizeForTable();
-        int index = hash(key);
-
-        if (bucket[index] == null) {
-            bucket[index] = new LinkedList<>();
-            bucket[index].add(new Entry<>(key, value));
-        } else {
-            bucket[index].add(new Entry<>(key, value));
-        }
-        size++;
-        return true;
     }
 
     /**
@@ -121,21 +114,25 @@ public class MyHashMap<K, V> implements MyMapInterface<K, V> {
      * новая пара будет добавлена в соответствующую корзину. В случае заполнения таблицы будет также
      * вызвана проверка на её увеличение.
      */
-
     @Override
-    public boolean remove(K key) {
+    public boolean put(K key, V value) {
+        checkSizeForTable();
         int index = hash(key);
-        if (bucket[index] != null) {
-            Entry<K, V> toRemove = null;
-            for (Entry<K, V> entry : bucket[index]) {
-                if (entry.key.equals(key)) {
-                    toRemove = entry;
-                    break;
-                }
+        if (key == null) {
+            if (bucket[0] == null) {
+                bucket[index] = new LinkedList<>();
+                bucket[index].add(new Entry<>(null, value));
+                size++;
+            } else {
+                bucket[0].add(new Entry<>(null, value));
             }
-            if (toRemove != null) {
-                bucket[index].remove(toRemove);
-                size--;
+        } else {
+            if (bucket[index] == null) {
+                bucket[index] = new LinkedList<>();
+                bucket[index].add(new Entry<>(key, value));
+                size++;
+            } else {
+                bucket[index].add(new Entry<>(key, value));
             }
         }
         return true;
@@ -146,12 +143,19 @@ public class MyHashMap<K, V> implements MyMapInterface<K, V> {
      */
 
     @Override
-    public Collection<V> values() {
-        return Arrays.stream(bucket)
-                .filter(Objects::nonNull)
-                .flatMap(Collection::stream)
-                .map(entry -> entry.value)
-                .collect(Collectors.toList());
+    public boolean remove(K key) {
+        int index = hash(key);
+        if (key == null) {
+            bucket[0].remove();
+            size--;
+            return true;
+        } else if (bucket[index] != null) {
+            bucket[index].remove();
+            size--;
+        } else {
+            return false;
+        }
+        return true;
     }
 
     /**
@@ -159,12 +163,8 @@ public class MyHashMap<K, V> implements MyMapInterface<K, V> {
      */
 
     @Override
-    public Set<K> keySet() {
-        return Arrays.stream(bucket)
-                .filter(Objects::nonNull)
-                .flatMap(Collection::stream)
-                .map(entry -> entry.key)
-                .collect(Collectors.toSet());
+    public Collection<V> values() {
+        return Arrays.stream(bucket).filter(Objects::nonNull).flatMap(Collection::stream).map(entry -> entry.value).collect(Collectors.toList());
     }
 
     /**
@@ -172,15 +172,22 @@ public class MyHashMap<K, V> implements MyMapInterface<K, V> {
      */
 
     @Override
-    public Set<Entry<K, V>> entrySet() {
-        return Arrays.stream(bucket)
-                .filter(Objects::nonNull)
-                .flatMap(List::stream)
-                .collect(Collectors.toSet());
+    public Set<K> keySet() {
+        return Arrays.stream(bucket).filter(Objects::nonNull).flatMap(Collection::stream).map(entry -> entry.key).collect(Collectors.toSet());
     }
 
     /**
      * Возвращает набор всех пар ключ-значение, хранящихся в хэш-таблице.
+     */
+
+    @Override
+    public Set<Entry<K, V>> entrySet() {
+        return Arrays.stream(bucket).filter(Objects::nonNull).flatMap(List::stream).collect(Collectors.toSet());
+    }
+
+    /**
+     * Проверяет, достигнут ли предел размерности хэш-таблицы, и увеличивает её в два раза,
+     * если порог превышен. Выбрасывает исключение IndexOutOfBoundsException при превышении максимального размера.
      */
 
     private void checkSizeForTable() {
@@ -194,14 +201,18 @@ public class MyHashMap<K, V> implements MyMapInterface<K, V> {
     }
 
     /**
-     * Проверяет, достигнут ли предел размерности хэш-таблицы, и увеличивает её во два раза,
-     * если порог превышен. Выбрасывает исключение IndexOutOfBoundsException при превышении максимального размера.
+     * Проверяет наличие ключа в хэш-таблице
+     */
+    public boolean containsKey(K key) {
+        return get(key) != null;
+     }
+
+    /**
+     * Возвращает текущее количество элементов в хэш-таблице.
      */
 
     public int getSize() {
         return size;
     }
-    /**
-     *  Возвращает текущее количество элементов в хэш-таблице.
-     */
+
 }
