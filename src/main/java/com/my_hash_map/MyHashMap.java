@@ -26,15 +26,16 @@ public class MyHashMap<K, V> implements MyMapInterface<K, V> {
     /**
      * Коэффициент загрузки, определяющий момент, когда следует увеличивать размер таблицы.
      */
-    private int threshold;
+    private final int threshold;
     /**
      * Порог, при достижении которого размер корзины будет увеличен.
      */
-    private LinkedList<Entry<K, V>>[] bucket;
+    private final LinkedList<Entry<K, V>>[] bucket;
     /**
      * Массив корзин, в которых будут храниться связанные списки на основе коллизий.
      */
     private int size;
+
     /**
      * Текущий размер хэш-таблицы, то есть количество элементов.
      */
@@ -42,30 +43,46 @@ public class MyHashMap<K, V> implements MyMapInterface<K, V> {
     @ToString
     protected static class Entry<K, V> {
         public K key;
-        /** Ключ элемента. */
+        /**
+         * Ключ элемента.
+         */
         public V value;
-        /** Значение элемента. */
+
+        /**
+         * Значение элемента.
+         */
 
         public Entry(K key, V value) {
             this.key = key;
             this.value = value;
         }
-        /** Конструктор. Создаёт новую пару ключ-значение. */
+        /**
+         *  Конструктор. Создаёт новую пару ключ-значение.
+         */
     }
-    /** Вложенный класс для представления пары ключ-значение. */
+
+    /**
+     * Вложенный класс для представления пары ключ-значение.
+     */
 
     public MyHashMap() {
         this.bucket = new LinkedList[defaultLength];
         this.size = 0;
         this.threshold = (int) (defaultLength * DEFAULT_LOAD_FACTOR);
     }
-    /** Инициализирует хэш-таблицу с заданной длиной и устанавливает начальные значения для size и threshold. */
+
+    /**
+     * Инициализирует хэш-таблицу с заданной длиной и устанавливает начальные значения для size и threshold.
+     */
 
     private int hash(K key) {
         return Objects.hashCode(key) % bucket.length;
     }
-    /** Генерирует индекс для заданного ключа, используя метод Objects.hashCode() для получения хэш-кода
-     *  и применяя модульную арифметику с длиной массива корзин. */
+
+    /**
+     * Генерирует индекс для заданного ключа, используя метод Objects.hashCode() для получения хэш-кода
+     * и применяя модульную арифметику с длиной массива корзин.
+     */
 
     @Override
     public V get(K key) {
@@ -79,7 +96,10 @@ public class MyHashMap<K, V> implements MyMapInterface<K, V> {
         }
         return null;
     }
-    /** Возвращает значение, связанное с заданным ключом. Если ключ не найден, возвращает null. */
+
+    /**
+     * Возвращает значение, связанное с заданным ключом. Если ключ не найден, возвращает null.
+     */
 
     @Override
     public boolean put(K key, V value) {
@@ -95,9 +115,12 @@ public class MyHashMap<K, V> implements MyMapInterface<K, V> {
         size++;
         return true;
     }
-    /** Добавляет новую пару ключ-значение в хэш-таблицу. Если ключ уже существует,
-     *  новая пара будет добавлена в соответствующую корзину. В случае заполнения таблицы будет также
-     *  вызвана проверка на её увеличение. */
+
+    /**
+     * Добавляет новую пару ключ-значение в хэш-таблицу. Если ключ уже существует,
+     * новая пара будет добавлена в соответствующую корзину. В случае заполнения таблицы будет также
+     * вызвана проверка на её увеличение.
+     */
 
     @Override
     public boolean remove(K key) {
@@ -117,7 +140,10 @@ public class MyHashMap<K, V> implements MyMapInterface<K, V> {
         }
         return true;
     }
-    /** Удаляет пару ключ-значение из хэш-таблицы по заданному ключу. Если такой ключ не найден, ничего не происходит. */
+
+    /**
+     * Удаляет пару ключ-значение из хэш-таблицы по заданному ключу. Если такой ключ не найден, ничего не происходит.
+     */
 
     @Override
     public Collection<V> values() {
@@ -127,7 +153,10 @@ public class MyHashMap<K, V> implements MyMapInterface<K, V> {
                 .map(entry -> entry.value)
                 .collect(Collectors.toList());
     }
-    /** Возвращает коллекцию всех значений, хранящихся в хэш-таблице. */
+
+    /**
+     * Возвращает коллекцию всех значений, хранящихся в хэш-таблице.
+     */
 
     @Override
     public Set<K> keySet() {
@@ -137,7 +166,10 @@ public class MyHashMap<K, V> implements MyMapInterface<K, V> {
                 .map(entry -> entry.key)
                 .collect(Collectors.toSet());
     }
-    /** Возвращает набор всех ключей, хранящихся в хэш-таблице. */
+
+    /**
+     * Возвращает набор всех ключей, хранящихся в хэш-таблице.
+     */
 
     @Override
     public Set<Entry<K, V>> entrySet() {
@@ -146,7 +178,10 @@ public class MyHashMap<K, V> implements MyMapInterface<K, V> {
                 .flatMap(List::stream)
                 .collect(Collectors.toSet());
     }
-    /** Возвращает набор всех пар ключ-значение, хранящихся в хэш-таблице. */
+
+    /**
+     * Возвращает набор всех пар ключ-значение, хранящихся в хэш-таблице.
+     */
 
     private void checkSizeForTable() {
         if (size >= MAXIMUM_SIZE) {
@@ -157,11 +192,16 @@ public class MyHashMap<K, V> implements MyMapInterface<K, V> {
             defaultLength *= 2;
         }
     }
-    /** Проверяет, достигнут ли предел размерности хэш-таблицы, и увеличивает её во два раза,
-     *  если порог превышен. Выбрасывает исключение IndexOutOfBoundsException при превышении максимального размера. */
+
+    /**
+     * Проверяет, достигнут ли предел размерности хэш-таблицы, и увеличивает её во два раза,
+     * если порог превышен. Выбрасывает исключение IndexOutOfBoundsException при превышении максимального размера.
+     */
 
     public int getSize() {
         return size;
     }
-    /** Возвращает текущее количество элементов в хэш-таблице. */
+    /**
+     *  Возвращает текущее количество элементов в хэш-таблице.
+     */
 }
