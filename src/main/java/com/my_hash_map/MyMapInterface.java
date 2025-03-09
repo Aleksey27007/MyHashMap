@@ -8,11 +8,11 @@ public interface MyMapInterface<K, V> {
     /**
      * Основные методы для работы с маппой
      */
-    V get(Object key);
+    V get(K key);
 
-    V put(K key, V value);
+    boolean put(K key, V value);
 
-    V remove(Object key);
+    boolean remove(K key);
 
     Collection<V> values();
 
