@@ -1,8 +1,8 @@
 package com.my_hash_map;
 
 import java.util.Collection;
-import java.util.Map;
 import java.util.Set;
+import com.my_hash_map.MyHashMap.Entry;
 
 public interface MyMapInterface<K, V> {
     /**
@@ -18,5 +18,5 @@ public interface MyMapInterface<K, V> {
 
     Set<K> keySet();
 
-    Set<Map.Entry<K, V>> entrySet();
+    Set<Entry<K, V>> entrySet();
 }
