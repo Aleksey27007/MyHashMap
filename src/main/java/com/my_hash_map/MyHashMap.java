@@ -5,11 +5,6 @@ import lombok.ToString;
 import java.util.*;
 import java.util.stream.Collectors;
 
-/**
- * MyHashMap — это реализация хэш-таблицы с использованием массивов и связанных списков для управления коллизиями.
- * Он реализует интерфейс MyMapInterface, который предоставляет основные методы для работы с парами ключ-значение,
- * такие как получение, добавление и удаление элементов.
- */
 public class MyHashMap<K, V> implements MyMapInterface<K, V> {
 
 
