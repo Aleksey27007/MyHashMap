@@ -27,5 +27,8 @@ public class MainTest {
         System.out.println(myHashMap.entrySet());
         System.out.println(myHashMap.get("A"));
         System.out.println(myHashMap.get("A"));
+        System.out.println(myHashMap.keySet());
+        System.out.println(myHashMap.entrySet());
+        System.out.println(myHashMap.values());
     }
 }
