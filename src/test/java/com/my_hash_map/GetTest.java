@@ -73,7 +73,7 @@ public class GetTest {
 
     @Test
     public void testGetNonExistingKey() {
-        String result = myHashMap.get("NExis"); /// с более длинными словами не работает
+        String result = myHashMap.get("NExis"); /// с более длинными словами не работает, нужно с хеш алгоритмом для нахождения индека поработать
         assertNull(result);
     }
 
