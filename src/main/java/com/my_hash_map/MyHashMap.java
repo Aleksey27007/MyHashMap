@@ -17,7 +17,7 @@ public class MyHashMap<K, V> implements MyMapInterface<K, V> {
     /**
      * Максимально допустимый размер хэш-таблицы. При превышении этого значения будет выброшено исключение.
      */
-    private final int MAXIMUM_SIZE = 1000;
+    private final int MAXIMUM_SIZE = 1073741824;
 
     /**
      * Коэффициент загрузки, определяющий момент, когда следует увеличивать размер таблицы.
